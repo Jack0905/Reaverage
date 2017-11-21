@@ -1,0 +1,86 @@
+# -*- coding: utf-8 -*-
+# delete.py 
+# Version: 1.0
+# Date: 2017/05/28
+# Author: Alina & Jack
+#
+# Description:
+#   將Linux GAMIT計算（grep之後）出來的坐標檔，並且已經存成TXT檔
+#	轉換到可被Bernese吃的CRD檔案
+#---------------------------------------------------------------------
+
+import os
+
+#DATA_DIR = "/Users/Jack/Desktop/Siggraph98-vrml97/notes"
+#DATA_DIR ="C:/Users/USER/Downloads/Telegram Desktop/TXT"
+#DATA_DIR ="C:/Users/USER/Downloads/Telegram Desktop/STA_2_07/STA_2_07"
+DATA_DIR ="D:/Users/Jack/Desktop/GPSW"
+#DATA_DIR ="C:/Users/USER/Downloads/Telegram Desktop/Delete"
+CRD_DIR = "D:/Users/Jack/Desktop/result/GPSW"
+ 
+loadCRD = open(os.path.join(CRD_DIR, 'COD15001.CRD'), 'rb')
+dict={}
+for i in range(6):
+		next(loadCRD)
+for line in loadCRD:
+	#print line
+	Name=line[5:9];
+	Name2=line[10:19]
+	#dict[Name] = Name2
+	if Name[0:3].isalpha():
+		dict[Name] = Name2
+#print dict
+#print len(dict)
+
+file_id=0;
+for filename in os.listdir(DATA_DIR):
+	num=0;
+	[file,txt]=filename.split('.')
+	fileO=open(file+'H.CRD.','w')
+	file_id+=1;
+	print "No." , file_id, "file: " ,filename
+	
+	fileO.write('The Coordinate estimated by GAMIT                                01-JAN-14 12:00\n');
+	fileO.write('--------------------------------------------------------------------------------\n')
+	fileO.write('LOCAL GEODETIC DATUM: IGb08             EPOCH: 2015-01-01 12:00:00\n\n')
+	fileO.write('NUM  STATION NAME           X (M)          Y (M)          Z (M)     FLAG\n\n')
+	loadFile = open(os.path.join(DATA_DIR, filename), 'rb')
+	List=();
+	for line in loadFile:
+		name=line[5:9]
+		x=line[61:75]
+		y=line[76:90]
+		z=line[91:105]		
+		#print num,name,x,y,z
+		station=([name,x,y,z])
+		print(filename)
+		print(station)
+		List+=(station,)
+		#print List;
+	#print List
+	N_List=sorted(List, key=lambda X: X[0])
+	#print N_List
+	for item in N_List:
+		num+=1;
+		fileO.write('%3d'%num);
+		fileO.write('%6s'%item[0]);
+		if dict.get(item[0]):
+			
+			fileO.write(' %-12s'%dict.get(item[0]));
+		else:
+			fileO.write(13*' ');
+		fileO.write('%14s'%item[1]);
+		fileO.write('%15s'%item[2]);
+		fileO.write('%15s'%item[3]);
+		fileO.write('%5s'%'F');
+		fileO.write('\n');
+		'''fileO.write('%3d'%num);
+		fileO.write('%6s'%name);
+		fileO.write(13*' ');
+		fileO.write('%14s'%x);
+		fileO.write('%15s'%y);
+		fileO.write('%15s'%z);
+		fileO.write(5*' ');fileO.write('\n');'''
+	#print item
+	loadFile.close();
+fileO.close();
